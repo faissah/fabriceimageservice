@@ -1,0 +1,52 @@
+package org.jahia.services.rules
+
+// list any import classes here
+import org.jahia.services.content.rules.*
+import org.jahia.services.content.*
+import javax.jcr.observation.Event
+import org.slf4j.Logger
+import org.apache.jackrabbit.core.security.JahiaAccessManager;
+import org.jahia.services.usermanager.JahiaGroupManagerService;
+import org.jahia.services.sites.JahiaSitesService;
+import org.jahia.services.utils.FabriceImageService;
+import org.jahia.services.utils.GeraldCacheService;
+
+
+expander rules.dsl
+
+// declare any global variables here
+global User user
+global Service service
+global ImageService imageService
+global ExtractionService extractionService
+global RulesNotificationService notificationService
+global Logger logger
+global JCRStoreProvider provider
+global FabriceImageService fabriceImageService
+glabal GeraldCacheService geraldCacheService
+
+rule "Image conversion PNG to JPG"
+    salience 225
+    when
+        A file content has been modified
+             - the mimetype matches image/png
+    then
+        Convert to JPG
+end
+
+rule "Match file extension with mimetype"
+    salience 5
+    when
+        A file content has been modified
+    then
+        > fabriceImageService.renameImageNode(node.getNode());
+end
+
+
+
+rule "clear caches"
+	salience 5
+	when 
+		A node is published
+	then
+	 	>geraldCacheService.flushCaches();
